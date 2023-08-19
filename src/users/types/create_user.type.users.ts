@@ -4,10 +4,11 @@ import { errorMessages } from '../../config/messages.config';
 
 /**
  * @type Type for CreateUser req's body input w/ validations
+ * @type Type for FetchUser req's query input w/ validations
  *
  * @throws 400 `BadRequestException` if any of validation fails
  */
-export class TCreateUser {
+export class TUserInput {
   @IsString()
   // Validate a UUID v-4 uid
   @IsUUID(4, {
