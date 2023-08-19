@@ -1,5 +1,5 @@
 import { HttpException } from '@nestjs/common';
-import { createHttpError } from './utils.core';
+import { createHttpError, isEmptyArray } from './utils.core';
 
 describe('createHttpError', () => {
   it('should create an HttpException with the provided values', () => {
@@ -26,5 +26,19 @@ describe('createHttpError', () => {
       status: params.status,
       stack: params.stack,
     });
+  });
+});
+
+describe('isEmptyArray', () => {
+  it('should return true for an empty array', () => {
+    const emptyArray: number[] = [];
+    const result = isEmptyArray(emptyArray);
+    expect(result).toBe(true);
+  });
+
+  it('should return false for a non-empty array', () => {
+    const nonEmptyArray = [1, 2, 3];
+    const result = isEmptyArray(nonEmptyArray);
+    expect(result).toBe(false);
   });
 });
