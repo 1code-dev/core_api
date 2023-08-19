@@ -39,3 +39,14 @@ export function createHttpError({
     status,
   );
 }
+
+/**
+ * Checks if array is empty
+ *
+ * @param {T[]} array to check for
+ * @returns {true} if provided array is empty
+ * @returns {false} if provided array is not empty
+ */
+export function isEmptyArray<T>(array: T[]): boolean {
+  return array.length === 0;
+}

@@ -2,6 +2,7 @@ import {
   ApiBadRequestResponse,
   ApiUnauthorizedResponse,
   ApiInternalServerErrorResponse,
+  ApiConflictResponse,
 } from '@nestjs/swagger';
 
 import { HttpStatus, applyDecorators } from '@nestjs/common';
@@ -48,6 +49,18 @@ export function ApiUniversalErrorResponses() {
           data: null,
           message: errorMessages.internal_server_error,
           status: HttpStatus.INTERNAL_SERVER_ERROR,
+        },
+      },
+    }),
+    // 409
+    ApiConflictResponse({
+      status: HttpStatus.CONFLICT,
+      description: 'Returns a response indicating db error has occurred',
+      schema: {
+        example: {
+          data: null,
+          message: errorMessages.db_error,
+          status: HttpStatus.CONFLICT,
         },
       },
     }),
