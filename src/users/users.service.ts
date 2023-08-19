@@ -2,6 +2,7 @@ import { HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { supabaseClient } from './../core/db/supabase.db';
 import { createHttpError, isEmptyArray } from './../core/utils/utils.core';
 import { errorMessages } from './../config/messages.config';
+import { TUserProfile } from './../types/user';
 
 @Injectable()
 export class UsersService {
@@ -119,5 +120,99 @@ export class UsersService {
     }
 
     return usersCount;
+  }
+
+  /**
+   * Fetches user profile data from db
+   *
+   * @param {string} uid associated with the profile to fetch
+   * @returns {TUserProfile} user profile data
+   *
+   * @throws 404 if there is no record for the user
+   * @throws 409 if db error has occurred
+   */
+  async getUserProfile(uid: string): Promise<TUserProfile> {
+    // fetch users data from db
+    const { data, error } = await supabaseClient
+      .from('Users')
+      .select(
+        `
+      longestStreak,
+      streak,
+      totalPoints,
+      uid,
+      UserRanks (
+        globalRank,
+        weeklyRank
+      )
+    `,
+      )
+      .eq('uid', uid)
+      .limit(1);
+
+    // throw error if supabase throws any error
+    if (error) {
+      this.logger.error(`Unable to fetch users profile for ${uid} uid`, {
+        error,
+      });
+
+      throw createHttpError({
+        status: HttpStatus.CONFLICT,
+        message: errorMessages.unable_to_fetch_user,
+        hint: error?.hint ?? error.code,
+        stacktrace: error.details,
+      });
+    }
+
+    // check if data is empty array
+    if (isEmptyArray(data)) {
+      // 👉 NOTE: This is primarily not treated as error, frontend will first try to fetch profile
+      //    and if profile is null then it will create it
+      this.logger.log(`UserProfile with ${uid} uid does not exists!`);
+
+      throw createHttpError({
+        status: HttpStatus.NOT_FOUND,
+        message: errorMessages.user_profile_not_found,
+        hint: null,
+        stacktrace: null,
+      });
+    }
+
+    const userData = data[0]; // select the first entry from the list
+
+    const userProfile: TUserProfile = {
+      longestStreak: userData.longestStreak,
+      streak: userData.streak,
+      totalPoints: userData.totalPoints,
+      globalRank: userData.UserRanks['globalRank'],
+      weeklyRank: userData.UserRanks['weeklyRank'],
+    };
+
+    return userProfile;
+  }
+
+  /**
+   * Deletes user profile w/ profiles uid
+   *
+   * @param {string} uid associated with the profile to be deleted
+   *
+   * @throws 409 if db error occurred while deleting the account
+   */
+  async deleteUserProfile(uid: string) {
+    const { error } = await supabaseClient
+      .from('Users')
+      .delete({ count: 'exact' })
+      .eq('uid', uid);
+
+    if (error) {
+      this.logger.error(`Unable to delete users profile w/ ${uid} uid`);
+
+      throw createHttpError({
+        status: HttpStatus.CONFLICT,
+        message: errorMessages.unable_to_delete_user,
+        hint: error?.hint ?? error.code,
+        stacktrace: error.details,
+      });
+    }
   }
 }
