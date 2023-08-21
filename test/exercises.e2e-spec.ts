@@ -4,13 +4,19 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import { AppModule } from './../src/app.module';
 
-import { responseMessages } from './../src/config/messages.config';
+import {
+  errorMessages,
+  responseMessages,
+} from './../src/config/messages.config';
 
 describe('UsersController (e2e)', () => {
   let app: INestApplication;
 
   // Track ID for `C++` track
   const TRACK_ID = '1f39a810-9156-4f30-88cf-743dfe4dc20a';
+
+  // Exercise ID of `Hello, World!` exercise in python track
+  const EXERCISE_ID = '85b3f3ec-e5e8-4bd7-b035-0ab1990cd75c';
 
   beforeEach(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -45,5 +51,48 @@ describe('UsersController (e2e)', () => {
     expect(response.body.data[0]).toHaveProperty('level');
     expect(response.body.data[0]).toHaveProperty('name');
     expect(response.body.data[0]).toHaveProperty('maxPoints');
+  });
+
+  // Should fetch all the available tracks properly
+  it('/exercises/details (GET)', async () => {
+    const response = await request(app.getHttpServer()).get(
+      `/exercises/details?id=${EXERCISE_ID}`,
+    );
+
+    // validate response status
+    expect(response.status).toEqual(200);
+
+    // validate response format
+    expect(response.body).toMatchObject({
+      message: responseMessages.fetched_exercise_details,
+      status: 200,
+    });
+
+    // validate data response
+    expect(response.body).toHaveProperty('data');
+
+    // validate response format
+    expect(response.body.data).toHaveProperty('id');
+    expect(response.body.data).toHaveProperty('name');
+    expect(response.body.data).toHaveProperty('maxPoints');
+    expect(response.body.data).toHaveProperty('minPoints');
+    expect(response.body.data).toHaveProperty('instructions');
+    expect(response.body.data).toHaveProperty('baseCode');
+  });
+
+  // Should throw 404 exception if exercise does not exists
+  it('/exercises/details (GET)', async () => {
+    const response = await request(app.getHttpServer()).get(
+      `/exercises/details?id=EXERCISE_ID`,
+    );
+
+    // validate response status
+    expect(response.status).toEqual(404);
+
+    // validate response format
+    expect(response.body).toMatchObject({
+      message: errorMessages.exercise_not_found,
+      status: 404,
+    });
   });
 });

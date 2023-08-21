@@ -21,6 +21,8 @@ export const errorMessages = {
   track_already_joined: 'Track is already joined by User!',
 
   unable_to_fetch_exercises: 'Unable to fetch exercises!',
+  unable_to_fetch_exercise_details: 'Unable to fetch exercise info!',
+  exercise_not_found: 'Exercise not found!',
 
   // Validation errors
 
@@ -35,6 +37,7 @@ export const responseMessages = {
   fetched_track: 'Fetched all the tracks successfully!',
   joined_track: 'Track joined successfully!',
   fetched_exercises: 'Fetched all available exercise successfully!',
+  fetched_exercise_details: 'Fetched exercise details successfully!',
 };
 
 export const warningMessages = {};

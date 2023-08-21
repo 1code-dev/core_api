@@ -8,6 +8,9 @@ describe('ExercisesService', () => {
   // Track ID for `Python` track
   const TRACK_ID = 'a13e9c3d-e7cf-477f-b862-0a1ee0e18d10';
 
+  // Exercise ID of `Hello, World!` exercise in python track
+  const EXERCISE_ID = '85b3f3ec-e5e8-4bd7-b035-0ab1990cd75c';
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [ExercisesService],
@@ -44,6 +47,37 @@ describe('ExercisesService', () => {
         data: null,
         message: errorMessages.unable_to_fetch_exercises,
         status: 409,
+      });
+    }
+  });
+
+  // Should return exercise details properly
+  it('should return exercise details properly', async () => {
+    const exercise = await service.getExerciseDetails(EXERCISE_ID);
+
+    // validate format of the response
+    expect(exercise.id).not.toBeNull();
+    expect(exercise.baseCode).not.toBeNull();
+    expect(exercise.name).not.toBeNull();
+    expect(exercise.instructions).not.toBeNull();
+    expect(exercise.minPoints).not.toBeNull();
+    expect(exercise.maxPoints).not.toBeNull();
+  });
+
+  // Should throw error if exercise not found
+  it('Should throw 404 error if exercise does not exists', async () => {
+    try {
+      // valid but non existant UUID
+      await service.getExerciseDetails('ed04142c-09c5-43d0-848c-2dc16b8b96c3');
+
+      // if error is not thrown then test should automatically fail
+      expect(true).toBe(false);
+    } catch (error) {
+      expect(error.getStatus()).toBe(404);
+      expect(error.getResponse()).toMatchObject({
+        data: null,
+        message: errorMessages.exercise_not_found,
+        status: 404,
       });
     }
   });
