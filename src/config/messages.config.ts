@@ -24,6 +24,7 @@ export const responseMessages = {
   created_user: 'Created user successfully!',
   fetched_user: 'Fetched user profile successfully!',
   deleted_user: 'Deleted user profile successfully!',
+  fetched_track: 'Fetched all the tracks successfully!',
 };
 
 export const warningMessages = {};

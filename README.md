@@ -17,3 +17,13 @@ If db error has occurred
 - 400
 
 If authorization has failed
+
+### Commands
+
+Generate types for the project
+
+```shell
+# Generate types
+
+npx supabase gen types typescript --project-id "zjngbjykvofvztzjjhye" --schema public > ./src/types/supabase.ts
+```
