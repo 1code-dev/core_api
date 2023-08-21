@@ -9,8 +9,8 @@ describe('TracksService', () => {
   // User's UID for Test User 1 who is already created in the DB
   const USER_UID = 'a1212c12-1a82-4f14-8dd0-4cbe04c47d4b';
 
-  // Track ID for `Pythons` track
-  const TRACK_ID = 'a13e9c3d-e7cf-477f-b862-0a1ee0e18d10';
+  // Track ID for `C++` track
+  const TRACK_ID = '1f39a810-9156-4f30-88cf-743dfe4dc20a';
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -30,7 +30,7 @@ describe('TracksService', () => {
   });
 
   // Check if `fetchAllAvailableTracks` function returning track list properly
-  it('should return a valid count', async () => {
+  it('should return a valid list of available tracks', async () => {
     const tracks = await service.fetchAllAvailableTracks();
 
     // except length to be greater then 0

@@ -16,8 +16,8 @@ describe('UsersController (e2e)', () => {
   /// User's UID for Test User 2 who is already created in the DB
   const USER_UID = 'a2212c12-1a82-4f14-8dd0-4cbe04c47d4b';
 
-  // Track ID for `Pythons` track
-  const TRACK_ID = 'a13e9c3d-e7cf-477f-b862-0a1ee0e18d10';
+  // Track ID for `C++` track
+  const TRACK_ID = '1f39a810-9156-4f30-88cf-743dfe4dc20a';
 
   beforeEach(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -62,7 +62,7 @@ describe('UsersController (e2e)', () => {
   });
 
   // Should join track for user properly
-  it('/users (POST)', async () => {
+  it('/tracks/join (POST)', async () => {
     const response = await request(app.getHttpServer())
       .post('/tracks/join')
       .send({
@@ -80,7 +80,7 @@ describe('UsersController (e2e)', () => {
   });
 
   // Should throw 422 error if user has already joined the track
-  it('/users (POST)', async () => {
+  it('/tracks/join (POST)', async () => {
     const response = await request(app.getHttpServer())
       .post('/tracks/join')
       .send({
