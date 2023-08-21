@@ -8,15 +8,19 @@ export const errorMessages = {
   // DB errors
 
   db_error: 'unable to process query with database! Please try again later',
+
   unable_to_create_user: 'Unable to create user! Please try again later',
   unable_to_delete_user: 'Unable to delete user profile',
   unable_to_fetch_user: 'Unable to fetch user profile',
   user_already_created: 'Profile already exists!',
   unable_to_count_users: 'Unable to create user! Please try again later',
   user_profile_not_found: 'Profile not found!',
+
   unable_to_join_track:
     'Unable to join track at this moment! Please try again later',
   track_already_joined: 'Track is already joined by User!',
+
+  unable_to_fetch_exercises: 'Unable to fetch exercises!',
 
   // Validation errors
 
@@ -30,6 +34,7 @@ export const responseMessages = {
   deleted_user: 'Deleted user profile successfully!',
   fetched_track: 'Fetched all the tracks successfully!',
   joined_track: 'Track joined successfully!',
+  fetched_exercises: 'Fetched all available exercise successfully!',
 };
 
 export const warningMessages = {};
