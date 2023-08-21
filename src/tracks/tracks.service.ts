@@ -47,4 +47,55 @@ export class TracksService {
 
     return data as TAvailableTrack[];
   }
+
+  /**
+   *
+   * @param {string} uid of user to join exercise for
+   * @param {string} trackId of track to join in for user
+   *
+   * @returns {boolean} true indicating user has joined the track successfully
+   *
+   * @throws 409 http error if any db error occurs
+   * @throws 422 http error if user has already joined the track
+   */
+  async joinTrack(uid: string, trackId: string): Promise<Boolean> {
+    // create a record in `UserTracks` w/ users uid and tracks id
+    const { error } = await supabaseClient.from('UserTracks').insert([
+      {
+        uid: uid,
+        trackId: trackId,
+      },
+    ]);
+
+    if (error) {
+      // if track is already joined by user
+      if (error?.code === '23505') {
+        this.logger.error(
+          `User has already joined track w/ id ${trackId} for user w/ ${uid} uid`,
+        );
+
+        throw createHttpError({
+          status: HttpStatus.UNPROCESSABLE_ENTITY,
+          message: errorMessages.track_already_joined,
+          hint: error?.hint ?? error?.code,
+          stacktrace: error?.details,
+        });
+      }
+
+      this.logger.error(
+        `Unable to join track w/ id ${trackId} for user w/ ${uid} uid`,
+      );
+
+      // throw 409 error if supabase error is not null
+      throw createHttpError({
+        status: HttpStatus.CONFLICT,
+        message: errorMessages.unable_to_join_track,
+        hint: error?.hint ?? error?.code,
+        stacktrace: error.details,
+      });
+    }
+
+    // indicates user has joined the track successfully!
+    return true;
+  }
 }
