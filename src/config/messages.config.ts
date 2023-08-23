@@ -4,6 +4,7 @@ export const errorMessages = {
   internal_server_error:
     'Some unknown error has occurred! Please try again later',
   client_not_verified: 'Client is not verified!',
+  invalid_base_64: 'Please provide valid base64 string',
 
   // DB errors
 
@@ -24,6 +25,11 @@ export const errorMessages = {
   unable_to_fetch_exercise_details: 'Unable to fetch exercise info!',
   exercise_not_found: 'Exercise not found!',
 
+  unable_to_run_test: 'Unable to run tests!',
+  invalid_test_input: 'Invalid code input received!',
+  unable_to_create_activity: 'Unable to create user activity',
+  unable_to_incr_points: 'Unable to increment points!',
+
   // Validation errors
 
   uuid_not_valid: 'UUID is not in valid format',
@@ -38,6 +44,8 @@ export const responseMessages = {
   joined_track: 'Track joined successfully!',
   fetched_exercises: 'Fetched all available exercise successfully!',
   fetched_exercise_details: 'Fetched exercise details successfully!',
+  test_executed_successfully: 'Tests executed successfully!',
+  exercise_already_completed: 'Exercise already completed!',
 };
 
 export const warningMessages = {};
