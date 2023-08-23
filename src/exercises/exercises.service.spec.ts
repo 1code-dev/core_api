@@ -19,6 +19,8 @@ describe('ExercisesService', () => {
     service = module.get<ExercisesService>(ExercisesService);
   });
 
+  // Fetch Available Exercises In A Track
+
   // Check if `getAllExercisesInTrack` function returning exercises list properly for a given track
   it('should return a valid list of available exercises in a track', async () => {
     const exercises = await service.getAllExercisesInTrack(TRACK_ID);
@@ -51,6 +53,8 @@ describe('ExercisesService', () => {
     }
   });
 
+  // Get Exercise Details
+
   // Should return exercise details properly
   it('should return exercise details properly', async () => {
     const exercise = await service.getExerciseDetails(EXERCISE_ID);
@@ -80,5 +84,80 @@ describe('ExercisesService', () => {
         status: 404,
       });
     }
+  });
+
+  // Get Exercise Test Details
+
+  // Should return exercise test details properly
+  it('should return exercise test details properly', async () => {
+    const exercise = await service.getExerciseTestDetails(EXERCISE_ID);
+
+    // validate format of the response
+    expect(exercise.tests).not.toBeNull();
+    expect(exercise.language).not.toBeNull();
+    expect(exercise.minPoints).not.toBeNull();
+    expect(exercise.maxPoints).not.toBeNull();
+  });
+
+  // Should throw error if exercise not found while fetching exercise test details
+  it('Should throw 404 error if exercise test details were not found', async () => {
+    try {
+      // valid but non existant UUID
+      await service.getExerciseDetails('ed04142c-09c5-43d0-848c-2dc16b8b96c3');
+
+      // if error is not thrown then test should automatically fail
+      expect(true).toBe(false);
+    } catch (error) {
+      expect(error.getStatus()).toBe(404);
+      expect(error.getResponse()).toMatchObject({
+        data: null,
+        message: errorMessages.exercise_not_found,
+        status: 404,
+      });
+    }
+  });
+
+  // Run Test
+
+  // Should throw error if exercise not found while fetching exercise test details
+  it('Should throw 400 error when invalid inputs are passed to run code w/ tests', async () => {
+    try {
+      // valid language but invalid user code
+      await service.runExerciseTests('invalidUserCode', 'Python');
+
+      // if error is not thrown then test should automatically fail
+      expect(true).toBe(false);
+    } catch (error) {
+      expect(error.getStatus()).toBe(400);
+
+      expect(error.getResponse()).toMatchObject({
+        data: null,
+        message: errorMessages.invalid_test_input,
+        status: 400,
+      });
+    }
+  });
+
+  // Should return compiler output clearly
+  it('should return compiler output without any compiler error', async () => {
+    const userCodeString = 'IApwcmludCgiSGVsbG8sIFdvcmxkISIpCg==';
+
+    const exercise = await service.runExerciseTests(userCodeString, 'Python');
+
+    // validate format of the response
+    expect(exercise.output).not.toBeNull();
+    expect(exercise.error).toBeNull();
+  });
+
+  // Should return compiler output w/ compiler error
+  it('should return compiler error after running code', async () => {
+    const userCodeString =
+      'IAojIE1vZGlmeSB0aGUgcmV0dXJuIHZhbHVlIHRvIHBhc3MgdGhlIHRlc3QKZGVmIGhlbGxvKCk6CnJldHVybiAiSGVsbG8sIFdvcmxkISIKCiMgTk9URTogRG8gbm90IG1vZGlmeSBmdW5jdGlvbiBuYW1lLCBpZiB5b3UgZG8sIHRlc3RzIHdpbGwgbm90IHBhc3MhCgo=';
+
+    const exercise = await service.runExerciseTests(userCodeString, 'Python');
+
+    // validate format of the response
+    expect(exercise.output).toBeNull();
+    expect(exercise.error).not.toBeNull();
   });
 });
