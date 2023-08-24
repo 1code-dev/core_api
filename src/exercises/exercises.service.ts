@@ -108,7 +108,7 @@ export class ExercisesService {
   async getExerciseTestDetails(exerciseId: string) {
     const { data, error } = await supabaseClient
       .from('Exercises')
-      .select(`maxPoints, minPoints, tests, language`)
+      .select(`maxPoints, minPoints, tests, language, trackId`)
       .eq('id', exerciseId);
 
     // if data is empty, i.e. exercise not found
@@ -282,6 +282,7 @@ export class ExercisesService {
    *
    * @param exerciseId
    * @param userId
+   * @param trackId
    * @param userCode
    * @param isCompleted
    * @param pointsEarned
@@ -293,6 +294,7 @@ export class ExercisesService {
   async createUserExerciseRecord(
     exerciseId: string,
     userId: string,
+    trackId: string,
     userCode: string,
     isCompleted: boolean,
     pointsEarned: number,
@@ -301,6 +303,7 @@ export class ExercisesService {
       {
         exerciseId: exerciseId,
         uid: userId,
+        trackId: trackId,
         usersCode: userCode,
         isCompleted: isCompleted,
         pointsEarned: pointsEarned,
@@ -368,6 +371,49 @@ export class ExercisesService {
     }
 
     return true; // indicates a record has been updated
+  }
+
+  /**
+   * Get users completed exercises
+   *
+   * @param {string} userId  of user associated with their profile
+   *
+   * @returns {string[]} list of uid's of completed exercises by user
+   *
+   * @throws 409 if any db error occurs
+   */
+  async getUsersCompletedExercises(
+    userId: string,
+    trackId: string,
+  ): Promise<string[]> {
+    const { data, error } = await supabaseClient
+      .from('UserExercises')
+      .select(`exerciseId`)
+      .eq('uid', userId)
+      .eq('trackId', trackId)
+      .eq('isCompleted', true);
+
+    // if any db error occurs
+    if (error) {
+      this.logger.error(
+        `Unable to fetch completed exercises for User with uid - ${userId}`,
+      );
+
+      throw createHttpError({
+        status: HttpStatus.CONFLICT,
+        message: errorMessages.unable_to_fetch_user_completed_exercises,
+        hint: error?.hint ?? error?.code,
+        stacktrace: error?.details,
+      });
+    }
+
+    const completedExercises: string[] = [];
+
+    for (let i = 0; i < data.length; i++) {
+      completedExercises.push(data[i].exerciseId);
+    }
+
+    return completedExercises;
   }
 
   /**

@@ -1,10 +1,11 @@
-import { TTrackInput } from './types/track_input.type.exercises';
-import { ExercisesService } from './exercises.service';
-import { errorMessages, responseMessages } from './../config/messages.config';
 import { TResponse } from './../types/response.type';
-import { TAllExercises } from './types/track_exercises.type.exercises';
-import { ApiUniversalErrorResponses } from './../config/errors.config';
+import { ExercisesService } from './exercises.service';
 import { TExerciseDetails } from './../types/exercise.type';
+import { TTrackInput } from './types/track_input.type.exercises';
+import { TUserUidInput } from './types/user_uid_input.type.exercises';
+import { ApiUniversalErrorResponses } from './../config/errors.config';
+import { TAllExercises } from './types/track_exercises.type.exercises';
+import { errorMessages, responseMessages } from './../config/messages.config';
 import { Body, Controller, Get, HttpStatus, Post, Query } from '@nestjs/common';
 
 import {
@@ -130,6 +131,10 @@ export class ExercisesController {
   }
 
   @Post('test')
+  @ApiOperation({
+    summary: 'run exercise test',
+    description: 'Run exercises test, users code should be `Base64` encoded',
+  })
   @ApiBody({ type: TRunExerciseInput })
   // 201
   @ApiResponse({
@@ -269,6 +274,7 @@ export class ExercisesController {
       await this.service.createUserExerciseRecord(
         body.exerciseId,
         body.userUid,
+        details.trackId,
         body.userCode,
         isCompleted,
         pointsEarned,
@@ -286,6 +292,52 @@ export class ExercisesController {
       },
       message: responseMessages.test_executed_successfully,
       status: HttpStatus.CREATED,
+    };
+  }
+
+  @Get('completed')
+  @ApiOperation({
+    summary: 'Fetch uids of users completed exercises',
+    description: 'Fetch all completed users exercises by users `uid`',
+  })
+  // query -> UUID
+  @ApiQuery({
+    name: 'uuid',
+    description: 'UUID of user associated with their profile',
+  })
+  // query -> trackId
+  @ApiQuery({
+    name: 'trackId',
+    description: 'Track id of the track',
+  })
+  // 200
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Fetched completed exercises successfully!',
+    schema: {
+      example: {
+        data: ['uids'],
+        message: responseMessages.fetched_completed_exercises,
+        status: HttpStatus.OK,
+      },
+    },
+  })
+  // 500, 400, 401, 409
+  @ApiUniversalErrorResponses()
+  async getCompletedExercises(
+    @Query() query: TUserUidInput,
+  ): Promise<TResponse<string[]>> {
+    // throws 409 exception if any db error occurs
+    // fetches users completed exercises uids
+    const uids = await this.service.getUsersCompletedExercises(
+      query.uuid,
+      query.trackId,
+    );
+
+    return {
+      data: uids,
+      message: responseMessages.fetched_completed_exercises,
+      status: HttpStatus.OK,
     };
   }
 }

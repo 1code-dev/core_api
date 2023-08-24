@@ -30,6 +30,9 @@ export const errorMessages = {
   unable_to_create_activity: 'Unable to create user activity',
   unable_to_incr_points: 'Unable to increment points!',
 
+  unable_to_fetch_user_completed_exercises:
+    'Unable to fetch completed exercises for user!',
+
   // Validation errors
 
   uuid_not_valid: 'UUID is not in valid format',
@@ -46,6 +49,7 @@ export const responseMessages = {
   fetched_exercise_details: 'Fetched exercise details successfully!',
   test_executed_successfully: 'Tests executed successfully!',
   exercise_already_completed: 'Exercise already completed!',
+  fetched_completed_exercises: 'Fetched completed exercises successfully!',
 };
 
 export const warningMessages = {};

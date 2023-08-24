@@ -121,4 +121,26 @@ describe('UsersController (e2e)', () => {
 
     expect(response.body.data).not.toBeNull();
   });
+
+  // Should fetch all the completed exercises by the user in a track
+  it('/exercises/completed (GET)', async () => {
+    const response = await request(app.getHttpServer()).get(
+      `/exercises/completed?uuid=${USER_UID}&trackId=${TRACK_ID}`,
+    );
+
+    // validate response status
+    expect(response.status).toEqual(200);
+
+    // validate response format
+    expect(response.body).toMatchObject({
+      message: responseMessages.fetched_completed_exercises,
+      status: 200,
+    });
+
+    // validate data response
+    expect(response.body).toHaveProperty('data');
+
+    // validate response format
+    expect(response.body.data.length).toBeGreaterThanOrEqual(0);
+  });
 });
