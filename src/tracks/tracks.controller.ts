@@ -1,4 +1,3 @@
-import { Body, Controller, Get, HttpStatus, Post } from '@nestjs/common';
 import { TracksService } from './tracks.service';
 import { TAvailableTrack } from './../types/track';
 import { TResponse } from './../types/response.type';
@@ -6,6 +5,8 @@ import { errorMessages, responseMessages } from './../config/messages.config';
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { ApiUniversalErrorResponses } from './../config/errors.config';
 import { TJoinTrackInput } from './types/join_track.type.tracks';
+import { TUserTrackFetchingInput } from './types/user_track_input';
+import { Body, Controller, Get, HttpStatus, Post, Query } from '@nestjs/common';
 
 @Controller('tracks')
 @ApiTags('Tracks')
@@ -96,6 +97,54 @@ export class TracksController {
       data: isJoined, // indicates user has joined the track
       message: responseMessages.joined_track,
       status: 201,
+    };
+  }
+
+  @Get('joined')
+  @ApiOperation({
+    summary: 'Fetch user joined tracks with progress',
+    description: 'Fetch users joined tracks w/ `progress`',
+  })
+  // 200
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Fetched data successfully!',
+    schema: {
+      example: {
+        data: {
+          data: [
+            {
+              name: 'Python',
+              logo: 'logo',
+              progress: 1.2,
+            },
+          ],
+        },
+        message: '',
+        status: 200,
+      },
+    },
+  })
+  // 500, 400, 401, 409
+  @ApiUniversalErrorResponses()
+  async getJoinedTracks(@Query() query: TUserTrackFetchingInput) {
+    const userTracks = await this.service.getUserTracks(query.uuid);
+
+    const data = [];
+
+    for (let i = 0; i < userTracks.length; i++) {
+      const progress = await this.service.getTrackProgress(
+        userTracks[i].trackId,
+      );
+      data.push({ ...userTracks[i].Tracks, progress });
+    }
+
+    return {
+      data: {
+        data,
+      },
+      message: '',
+      status: 200,
     };
   }
 }

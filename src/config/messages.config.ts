@@ -21,6 +21,8 @@ export const errorMessages = {
     'Unable to join track at this moment! Please try again later',
   track_already_joined: 'Track is already joined by User!',
 
+  unable_to_fetch_user_track: 'Unable to get user tracks!',
+
   unable_to_fetch_exercises: 'Unable to fetch exercises!',
   unable_to_fetch_exercise_details: 'Unable to fetch exercise info!',
   exercise_not_found: 'Exercise not found!',

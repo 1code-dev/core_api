@@ -2,7 +2,7 @@ import { TResponse } from './../types/response.type';
 import { ExercisesService } from './exercises.service';
 import { TExerciseDetails } from './../types/exercise.type';
 import { TTrackInput } from './types/track_input.type.exercises';
-import { TUserUidInput } from './types/user_uid_input.type.exercises';
+import { TUserCompletedExerciseInput } from './types/user_uid_input.type.exercises';
 import { ApiUniversalErrorResponses } from './../config/errors.config';
 import { TAllExercises } from './types/track_exercises.type.exercises';
 import { errorMessages, responseMessages } from './../config/messages.config';
@@ -325,7 +325,7 @@ export class ExercisesController {
   // 500, 400, 401, 409
   @ApiUniversalErrorResponses()
   async getCompletedExercises(
-    @Query() query: TUserUidInput,
+    @Query() query: TUserCompletedExerciseInput,
   ): Promise<TResponse<string[]>> {
     // throws 409 exception if any db error occurs
     // fetches users completed exercises uids
