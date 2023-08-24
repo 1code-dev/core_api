@@ -8,14 +8,6 @@ import { TExerciseDetails } from './../types/exercise.type';
 import { Body, Controller, Get, HttpStatus, Post, Query } from '@nestjs/common';
 
 import {
-  ApiBody,
-  ApiOperation,
-  ApiQuery,
-  ApiResponse,
-  ApiTags,
-} from '@nestjs/swagger';
-
-import {
   TRunExerciseInput,
   TRunExerciseOutput,
 } from './types/run_test.type.exercises';
@@ -25,6 +17,14 @@ import {
   encodeStringBase64,
   parseTestResults,
 } from './../core/utils/utils.core';
+
+import {
+  ApiBody,
+  ApiOperation,
+  ApiQuery,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 
 @Controller('exercises')
 @ApiTags('Exercises')
@@ -131,9 +131,9 @@ export class ExercisesController {
 
   @Post('test')
   @ApiBody({ type: TRunExerciseInput })
-  // 200
+  // 201
   @ApiResponse({
-    status: HttpStatus.OK,
+    status: HttpStatus.CREATED,
     description: 'Test executed successfully!',
     schema: {
       example: {
@@ -151,7 +151,7 @@ export class ExercisesController {
           isCompleted: false,
         },
         message: responseMessages.test_executed_successfully,
-        status: HttpStatus.OK,
+        status: HttpStatus.CREATED,
       },
     },
   })
@@ -209,7 +209,7 @@ export class ExercisesController {
           isCompleted: false,
         },
         message: responseMessages.test_executed_successfully,
-        status: HttpStatus.OK,
+        status: HttpStatus.CREATED,
       };
     }
 
@@ -235,7 +235,7 @@ export class ExercisesController {
           error: testResult.error,
         },
         message: responseMessages.exercise_already_completed,
-        status: HttpStatus.OK,
+        status: HttpStatus.CREATED,
       };
     }
 
@@ -285,7 +285,7 @@ export class ExercisesController {
         isCompleted: isCompleted,
       },
       message: responseMessages.test_executed_successfully,
-      status: HttpStatus.OK,
+      status: HttpStatus.CREATED,
     };
   }
 }
