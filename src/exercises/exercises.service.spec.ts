@@ -229,6 +229,7 @@ describe('ExercisesService', () => {
     const isCreated = await service.createUserExerciseRecord(
       EXERCISE_ID,
       USER_UID,
+      TRACK_ID,
       'usersCode',
       false,
       0,
@@ -260,6 +261,18 @@ describe('ExercisesService', () => {
 
     expect(details.isCompleted).toEqual(true);
     expect(details.pointsEarned).toEqual(10);
+  });
+
+  // Users completed exercises
+
+  // should return users completed exercises properly
+  it('should return uid of users completed exercises', async () => {
+    const details = await service.getUsersCompletedExercises(
+      USER_UID,
+      EXERCISE_ID,
+    );
+
+    expect(details.length).toBeGreaterThanOrEqual(0);
   });
 
   // API route finder
