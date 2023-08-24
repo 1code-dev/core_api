@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ExercisesService } from './exercises.service';
 import { errorMessages } from './../config/messages.config';
+import { supabaseClient } from './../core/db/supabase.db';
 
 describe('ExercisesService', () => {
   let service: ExercisesService;
@@ -14,12 +15,20 @@ describe('ExercisesService', () => {
   // User's UID for Test User 1 who is already created in the DB
   const USER_UID = 'a1212c12-1a82-4f14-8dd0-4cbe04c47d4b';
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [ExercisesService],
     }).compile();
 
     service = module.get<ExercisesService>(ExercisesService);
+  });
+
+  afterAll(async () => {
+    await supabaseClient
+      .from('UserExercises')
+      .delete()
+      .eq('exerciseId', EXERCISE_ID)
+      .eq('uid', USER_UID);
   });
 
   // Fetch Available Exercises In A Track
@@ -173,9 +182,10 @@ describe('ExercisesService', () => {
     const userCodeString =
       'IAojaW5jbHVkZSA8aW9zdHJlYW0+CgppbnQgbWFpbigpIHsKICAgIHN0ZDo6Y291dCA8PCAiSGVsbG8sIHdvcmxkISIgPDwgc3RkOjplbmRsOwogICAgcmV0dXJuIDA7Cn0K';
 
-    const exercise = await service.runExerciseTests(userCodeString, 'Python');
+    const exercise = await service.runExerciseTests(userCodeString, 'C++');
 
     // validate format of the response
+    expect(exercise.output).not.toBeNull();
     expect(exercise.error).toBeNull();
   });
 
@@ -184,7 +194,7 @@ describe('ExercisesService', () => {
     const userCodeString =
       'IAojaW5jbHVkZSA8aW9zdHJlYW0+CmludCBtYWluKCkgewogICAgc3RkOjpjb3V0IDw8ICJIZWxsbywgd29ybGQhCiAgICByZXR1cm4gMDsKfQo=';
 
-    const exercise = await service.runExerciseTests(userCodeString, 'Python');
+    const exercise = await service.runExerciseTests(userCodeString, 'C++');
 
     // validate format of the response
     expect(exercise.output).toBeNull();
