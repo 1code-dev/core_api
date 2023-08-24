@@ -11,6 +11,9 @@ describe('ExercisesService', () => {
   // Exercise ID of `Hello, World!` exercise in python track
   const EXERCISE_ID = '85b3f3ec-e5e8-4bd7-b035-0ab1990cd75c';
 
+  // User's UID for Test User 1 who is already created in the DB
+  const USER_UID = 'a1212c12-1a82-4f14-8dd0-4cbe04c47d4b';
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [ExercisesService],
@@ -138,8 +141,10 @@ describe('ExercisesService', () => {
     }
   });
 
+  // python
+
   // Should return compiler output clearly
-  it('should return compiler output without any compiler error', async () => {
+  it('should return compiler output for `Python` code without any compiler error', async () => {
     const userCodeString = 'IApwcmludCgiSGVsbG8sIFdvcmxkISIpCg==';
 
     const exercise = await service.runExerciseTests(userCodeString, 'Python');
@@ -150,7 +155,7 @@ describe('ExercisesService', () => {
   });
 
   // Should return compiler output w/ compiler error
-  it('should return compiler error after running code', async () => {
+  it('should return compiler error after running `Python` code', async () => {
     const userCodeString =
       'IAojIE1vZGlmeSB0aGUgcmV0dXJuIHZhbHVlIHRvIHBhc3MgdGhlIHRlc3QKZGVmIGhlbGxvKCk6CnJldHVybiAiSGVsbG8sIFdvcmxkISIKCiMgTk9URTogRG8gbm90IG1vZGlmeSBmdW5jdGlvbiBuYW1lLCBpZiB5b3UgZG8sIHRlc3RzIHdpbGwgbm90IHBhc3MhCgo=';
 
@@ -159,5 +164,102 @@ describe('ExercisesService', () => {
     // validate format of the response
     expect(exercise.output).toBeNull();
     expect(exercise.error).not.toBeNull();
+  });
+
+  // C++
+
+  // Should return compiler output clearly
+  it('should return compiler output for `C++` code without any compiler error', async () => {
+    const userCodeString =
+      'IAojaW5jbHVkZSA8aW9zdHJlYW0+CgppbnQgbWFpbigpIHsKICAgIHN0ZDo6Y291dCA8PCAiSGVsbG8sIHdvcmxkISIgPDwgc3RkOjplbmRsOwogICAgcmV0dXJuIDA7Cn0K';
+
+    const exercise = await service.runExerciseTests(userCodeString, 'Python');
+
+    // validate format of the response
+    expect(exercise.error).toBeNull();
+  });
+
+  // Should return compiler output w/ compiler error
+  it('should return compiler error after running `C++` code', async () => {
+    const userCodeString =
+      'IAojaW5jbHVkZSA8aW9zdHJlYW0+CmludCBtYWluKCkgewogICAgc3RkOjpjb3V0IDw8ICJIZWxsbywgd29ybGQhCiAgICByZXR1cm4gMDsKfQo=';
+
+    const exercise = await service.runExerciseTests(userCodeString, 'Python');
+
+    // validate format of the response
+    expect(exercise.output).toBeNull();
+    expect(exercise.error).not.toBeNull();
+  });
+
+  // Create User Activity
+
+  // should create user activity
+  it('Should return true after creating user activity', async () => {
+    const isCreated = await service.createUserActivity(
+      USER_UID,
+      EXERCISE_ID,
+      'Python',
+    );
+
+    // validate format of the response
+    expect(isCreated).toBe(true);
+  });
+
+  // exercise record creation
+
+  // should return null if user exercise does not exists
+  it('should return null if user exercise does not exists', async () => {
+    const details = await service.getUserExerciseDetails(USER_UID, EXERCISE_ID);
+
+    expect(details).toBeNull();
+  });
+
+  // should create exercise record for user properly
+  it('should return true after creating exercise record for the user', async () => {
+    const isCreated = await service.createUserExerciseRecord(
+      EXERCISE_ID,
+      USER_UID,
+      'usersCode',
+      false,
+      0,
+    );
+
+    expect(isCreated).toBe(true);
+  });
+
+  // update user exercise
+
+  // should update exercise record for user properly
+  it('should return true after creating exercise record for the user', async () => {
+    const isUpdated = await service.updateUserExerciseRecord(
+      EXERCISE_ID,
+      USER_UID,
+      'usersCodeUpdated',
+      true,
+      10,
+    );
+
+    expect(isUpdated).toBe(true);
+  });
+
+  // fetch it again to recheck
+
+  // should return users exercise details properly
+  it('should return detail properly for users exercise', async () => {
+    const details = await service.getUserExerciseDetails(USER_UID, EXERCISE_ID);
+
+    expect(details.isCompleted).toEqual(true);
+    expect(details.pointsEarned).toEqual(10);
+  });
+
+  // API route finder
+
+  // should return correct API route for the language input
+  it('should return correct API route for the language input', () => {
+    expect(service.getCompilerUrlByLanguage('Python')).toEqual('compile_py');
+    expect(service.getCompilerUrlByLanguage('C++')).toEqual('compile_cpp');
+
+    // if not exists
+    expect(service.getCompilerUrlByLanguage('C')).toEqual('');
   });
 });

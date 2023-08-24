@@ -12,6 +12,9 @@ import {
 describe('UsersController (e2e)', () => {
   let app: INestApplication;
 
+  // User's UID for Test User 1 who is already created in the DB
+  const USER_UID = 'a1212c12-1a82-4f14-8dd0-4cbe04c47d4b';
+
   // Track ID for `C++` track
   const TRACK_ID = '1f39a810-9156-4f30-88cf-743dfe4dc20a';
 
@@ -94,5 +97,28 @@ describe('UsersController (e2e)', () => {
       message: errorMessages.exercise_not_found,
       status: 404,
     });
+  });
+
+  // Should run exercise test properly
+  it('/exercises/test (POST)', async () => {
+    const response = await request(app.getHttpServer())
+      .post(`/exercises/test`)
+      .send({
+        exerciseId: EXERCISE_ID,
+        userUid: USER_UID,
+        userCode:
+          'IAojaW5jbHVkZSA8aW9zdHJlYW0+CgppbnQgbWFpbigpIHsKICAgIHN0ZDo6Y291dCA8PCAiSGVsbG8sIHdvcmxkISIgPDwgc3RkOjplbmRsOwogICAgcmV0dXJuIDA7Cn0K',
+      });
+
+    // validate response status
+    expect(response.status).toEqual(201);
+
+    // validate response format
+    expect(response.body).toMatchObject({
+      message: responseMessages.test_executed_successfully,
+      status: 201,
+    });
+
+    expect(response.body.data).not.toBeNull();
   });
 });

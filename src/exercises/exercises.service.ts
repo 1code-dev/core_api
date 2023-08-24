@@ -218,8 +218,6 @@ export class ExercisesService {
   /**
    * Creates activity for a user with language in which activity has done
    *
-   * ⚠️ Alert: Not tested!
-   *
    * @param {string} userId associated with users profile
    * @param {string} exerciseId associated with the exercise
    * @param {string} language name in which code is written
@@ -260,8 +258,6 @@ export class ExercisesService {
   /**
    * Read already created details for the exercise for the user
    *
-   * ⚠️ Alert: Not tested!
-   *
    * @param {string} userId
    * @param {string} exerciseId
    *
@@ -284,13 +280,13 @@ export class ExercisesService {
   /**
    * Create a exercise record in db for the user
    *
-   * ⚠️ Alert: Not tested!
-   *
    * @param exerciseId
    * @param userId
    * @param userCode
    * @param isCompleted
    * @param pointsEarned
+   *
+   * @returns {boolean} `true` indicating a record has been created
    *
    * @throws 409 if any db error occurs
    */
@@ -300,7 +296,7 @@ export class ExercisesService {
     userCode: string,
     isCompleted: boolean,
     pointsEarned: number,
-  ) {
+  ): Promise<boolean> {
     const { error } = await supabaseClient.from('UserExercises').insert([
       {
         exerciseId: exerciseId,
@@ -323,18 +319,20 @@ export class ExercisesService {
         stacktrace: error?.details,
       });
     }
+
+    return true; // indicates a record has been created
   }
 
   /**
    * Updates exercise record in db for the user
-   *
-   * ⚠️ Alert: Not tested!
    *
    * @param exerciseId
    * @param userId
    * @param userCode
    * @param isCompleted
    * @param pointsEarned
+   *
+   * @returns {boolean} `true` indicating a record has been updated
    *
    * @throws 409 if any db error occurs
    */
@@ -344,7 +342,7 @@ export class ExercisesService {
     userCode: string,
     isCompleted: boolean,
     pointsEarned: number,
-  ) {
+  ): Promise<boolean> {
     const { error } = await supabaseClient
       .from('UserExercises')
       .update({
@@ -368,12 +366,12 @@ export class ExercisesService {
         stacktrace: error?.details,
       });
     }
+
+    return true; // indicates a record has been updated
   }
 
   /**
    * Get a compiler route for the specific language
-   *
-   * ⚠️ Alert: Not tested!
    *
    * @param {string} language name to co-relate api url
    *
