@@ -98,4 +98,55 @@ export class TracksService {
     // indicates user has joined the track successfully!
     return true;
   }
+
+  async getUserTracks(userId: string) {
+    const { data, error } = await supabaseClient
+      .from('UserTracks')
+      .select(
+        `trackId,
+        Tracks (
+        name,
+        logo
+      )`,
+      )
+      .eq('uid', userId);
+
+    if (error) {
+      this.logger.error(
+        `Unable to fetch joined tracks for user w/ uid ${userId}`,
+      );
+
+      throw createHttpError({
+        status: HttpStatus.UNPROCESSABLE_ENTITY,
+        message: errorMessages.unable_to_fetch_user_track,
+        hint: error?.hint ?? error?.code,
+        stacktrace: error?.details,
+      });
+    }
+
+    return data;
+  }
+
+  async getTrackProgress(trackId: string) {
+    const totalCount = (
+      await supabaseClient
+        .from(`Exercises`)
+        .select(`id`, { count: 'exact' })
+        .eq('trackId', trackId)
+    ).count;
+
+    const completedCount = (
+      await supabaseClient
+        .from('UserExercises')
+        .select(`exerciseId`, { count: 'exact' })
+        .eq(`trackId`, trackId)
+        .eq('isCompleted', true)
+    ).count;
+
+    this.logger.debug(totalCount, completedCount);
+
+    const completedPercent = (completedCount / totalCount) * 100;
+
+    return completedPercent;
+  }
 }
