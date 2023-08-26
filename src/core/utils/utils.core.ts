@@ -149,3 +149,18 @@ export function decodeBase64String(encoded: string): string {
     });
   }
 }
+
+/**
+ * Check if two dates are consecutive days.
+ *
+ * @param {Date} date1 - The first date.
+ * @param {Date} date2 - The second date.
+ * @returns {boolean} - True if dates are consecutive, false otherwise.
+ */
+export function areDatesConsecutive(date1: Date, date2: Date): boolean {
+  const oneDay = 24 * 60 * 60 * 1000; // One day in milliseconds
+  const diffTime = Math.abs(date1.getTime() - date2.getTime());
+  const diffDays = Math.round(diffTime / oneDay);
+
+  return diffDays === 1;
+}
