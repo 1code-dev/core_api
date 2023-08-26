@@ -152,28 +152,15 @@ export function decodeBase64String(encoded: string): string {
 
 /**
  * Check if two dates are consecutive days.
+ *
  * @param {Date} date1 - The first date.
  * @param {Date} date2 - The second date.
  * @returns {boolean} - True if dates are consecutive, false otherwise.
  */
 export function areDatesConsecutive(date1: Date, date2: Date): boolean {
-  const oneDay: number = 24 * 60 * 60 * 1000; // One day in milliseconds
-
-  // Get the year, month, and day parts of the dates
-  const year1 = date1.getFullYear();
-  const month1 = date1.getMonth();
-  const day1 = date1.getDate();
-
-  const year2 = date2.getFullYear();
-  const month2 = date2.getMonth();
-  const day2 = date2.getDate();
-
-  // Calculate the difference between the dates
-  const diffDays: number = Math.round(
-    Math.abs(
-      (Date.UTC(year1, month1, day1) - Date.UTC(year2, month2, day2)) / oneDay,
-    ),
-  );
+  const oneDay = 24 * 60 * 60 * 1000; // One day in milliseconds
+  const diffTime = Math.abs(date1.getTime() - date2.getTime());
+  const diffDays = Math.round(diffTime / oneDay);
 
   return diffDays === 1;
 }

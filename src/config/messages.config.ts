@@ -17,6 +17,14 @@ export const errorMessages = {
   unable_to_count_users: 'Unable to create user! Please try again later',
   user_profile_not_found: 'Profile not found!',
 
+  unable_to_calculate_earned_points: 'Unable to calculate earned points!',
+
+  unable_to_fetch_user_activity_records:
+    'Unable to fetch users activity records!',
+
+  unable_to_fetch_user_completed_exercise_count:
+    'Unable to calculate users completed exercise!',
+
   unable_to_join_track:
     'Unable to join track at this moment! Please try again later',
   track_already_joined: 'Track is already joined by User!',
@@ -44,6 +52,8 @@ export const errorMessages = {
 export const responseMessages = {
   created_user: 'Created user successfully!',
   fetched_user: 'Fetched user profile successfully!',
+  fetched_stats: 'Fetched user stats successfully!',
+  fetched_activity: 'Fetched user activity successfully!',
   deleted_user: 'Deleted user profile successfully!',
   fetched_track: 'Fetched all the tracks successfully!',
   joined_track: 'Track joined successfully!',
