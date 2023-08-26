@@ -9,18 +9,30 @@ import {
   responseMessages,
 } from './../src/config/messages.config';
 
+import {
+  connectRedisClient,
+  disconnectRedisClient,
+} from './../src/core/db/redis.db';
+
 describe('UsersController (e2e)', () => {
   let app: INestApplication;
 
   const USER_UID = '2d1f0c06-4d4d-4e9e-a6f7-ef6e0e7a9b12';
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();
 
     app = moduleFixture.createNestApplication();
+
+    connectRedisClient();
+
     await app.init();
+  });
+
+  afterAll(() => {
+    disconnectRedisClient();
   });
 
   // Should create users profile properly

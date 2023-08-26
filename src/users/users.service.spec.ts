@@ -1,25 +1,42 @@
-import { Test, TestingModule } from '@nestjs/testing';
 import { UsersService } from './users.service';
+import { Test, TestingModule } from '@nestjs/testing';
 import { errorMessages } from './../config/messages.config';
+
+import {
+  connectRedisClient,
+  disconnectRedisClient,
+} from './../core/db/redis.db';
 
 describe('UsersService', () => {
   let service: UsersService;
 
   const USER_UID = '1d1f0c06-4d4d-4e9e-a6f7-ef6e0e7a9b11';
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [UsersService],
     }).compile();
 
     service = module.get<UsersService>(UsersService);
+
+    connectRedisClient();
   });
+
+  afterAll(() => {
+    disconnectRedisClient();
+  });
+
+  // -----------------------------------------------------------------------------------------------------------------------
 
   // ⚠️ Warning: Do not change the order in which tests are processed
 
   // 🪜 STEPS: First user profile to be created with `USER_UID` and then all the records to be deleted by running test in appropriate order
 
   // 👉 NOTE: This is to avoid any ambiguity which may occur in future by using a default UUID for all the tests processed
+
+  // -----------------------------------------------------------------------------------------------------------------------
+
+  //  Create users profile 😃
 
   // Check if `countUserEntries` function returning the count properly
   it('should return a valid count', async () => {
@@ -30,19 +47,16 @@ describe('UsersService', () => {
 
   // Check user creation
   it('should create a user with UID', async () => {
-    const userData = await service.createUser(USER_UID);
+    const userData = await service.createUserProfile(USER_UID);
 
-    expect(userData).toEqual({
-      longestStreak: 0,
-      streak: 0,
-      totalPoints: 0,
+    expect(userData).toMatchObject({
       uid: USER_UID,
     });
   });
 
   // Check if user is already created
   it('should return null if user is already created', async () => {
-    const userData = await service.createUser(USER_UID);
+    const userData = await service.createUserProfile(USER_UID);
 
     expect(userData).toEqual(null);
   });
@@ -50,7 +64,7 @@ describe('UsersService', () => {
   // Should throw 409 HttpException if db error occurred
   it('should throw 409 if db error has occurred', async () => {
     try {
-      await service.createUser('wrong UUID');
+      await service.createUserProfile('wrong UUID');
     } catch (error) {
       expect(error.getStatus()).toBe(409);
       expect(error.getResponse()).toMatchObject({
@@ -61,12 +75,17 @@ describe('UsersService', () => {
     }
   });
 
+  // Create user ranks 🎖️
+
   // Should create `userRank` data properly
   it('should create userRank data properly', async () => {
     await service.createUserRanks(USER_UID, 100);
+
+    // if above function throws any error, the test will fail
+    expect(true).toBe(true);
   });
 
-  // Should throw 409 error if any db error has occurred
+  // Should throw 409 error if any db error has occurred while creating user rank record
   it('should throw 409 error if `createUserRanks` throws any db error', async () => {
     try {
       await service.createUserRanks('wrong-UID', 100.0);
@@ -94,24 +113,23 @@ describe('UsersService', () => {
     }
   });
 
-  // Should fetch users profile correctly
-  it('should fetch user profile correctly', async () => {
-    const userProfile = await service.getUserProfile(USER_UID);
+  // Fetch users ranks 🥇
 
-    expect(userProfile).toMatchObject({
-      longestStreak: 0,
-      streak: 0,
-      totalPoints: 0,
-    });
+  // Should fetch users rank data properly
+  it('should fetch user ranks data correctly', async () => {
+    const userRanks = await service.fetchUserRanks(USER_UID);
 
-    expect(userProfile).toHaveProperty('globalRank');
-    expect(userProfile).toHaveProperty('weeklyRank');
+    expect(userRanks).toHaveProperty('globalRank');
+    expect(userRanks).toHaveProperty('weeklyRank');
+
+    expect(typeof userRanks.globalRank).toEqual('number');
+    expect(typeof userRanks.weeklyRank).toEqual('number');
   });
 
-  // Should throw 404 when user profile does not exists
-  it('should throw 404 when profile does not exists', async () => {
+  // Should throw 404 when user profile does not exists while fetching ranks
+  it('should throw 404 when users profile does not exists while fetching ranks', async () => {
     try {
-      await service.getUserProfile('1d1f1c01-1d1d-1e1e-a1f1-ef1e1e1a1b11');
+      await service.fetchUserRanks('1d1f1c01-1d1d-1e1e-a1f1-ef1e1e1a1b11');
     } catch (error) {
       expect(error.getStatus()).toBe(404);
       expect(error.getResponse()).toMatchObject({
@@ -122,10 +140,10 @@ describe('UsersService', () => {
     }
   });
 
-  // Should throw 409 if db error occurs
-  it('should throw 409 when db error has occurred while fetching users profile', async () => {
+  // Should throw 409 if db error occurs while fetching ranks
+  it('should throw 409 when db error has occurred while fetching users profile while fetching ranks', async () => {
     try {
-      await service.getUserProfile('not-existant-uid');
+      await service.fetchUserRanks('not-existant-uid');
     } catch (error) {
       expect(error.getStatus()).toBe(409);
       expect(error.getResponse()).toMatchObject({
@@ -135,6 +153,54 @@ describe('UsersService', () => {
       });
     }
   });
+
+  // Calculate total points 🔢
+
+  // should calculate users totalPoints correctly
+  it('should correctly calculate users total points', async () => {
+    const userTotalPoints = await service.calculateUsersTotalPoints(USER_UID);
+
+    expect(typeof userTotalPoints).toEqual('number');
+    expect(userTotalPoints).toEqual(0);
+  });
+
+  // Should throw 409 if db error occurs while calculating total points
+  it('should throw 409 when db error has occurred while calculating total points', async () => {
+    try {
+      await service.calculateUsersTotalPoints('not-existant-uid');
+    } catch (error) {
+      expect(error.getStatus()).toBe(409);
+      expect(error.getResponse()).toMatchObject({
+        data: null,
+        status: 409,
+      });
+    }
+  });
+
+  // Calculate users streak data 💯
+
+  // should calculate users streak data correctly
+  it('should correctly calculate users streak data', async () => {
+    const userStreakData = await service.calculateUserStreaks(USER_UID);
+
+    expect(typeof userStreakData.currentStreak).toEqual('number');
+    expect(typeof userStreakData.longestStreak).toEqual('number');
+  });
+
+  // Should throw 409 if db error occurs while calculating users streak data
+  it('should throw 409 when db error has occurred while calculating users streak', async () => {
+    try {
+      await service.calculateUserStreaks('not-existant-uid');
+    } catch (error) {
+      expect(error.getStatus()).toBe(409);
+      expect(error.getResponse()).toMatchObject({
+        data: null,
+        status: 409,
+      });
+    }
+  });
+
+  // Delete user 🗑️
 
   // Should delete users profile without any db error
   it('should throw 409 if db error has occurred while deleting profile', async () => {
