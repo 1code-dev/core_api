@@ -2,6 +2,7 @@ import { HttpException } from '@nestjs/common';
 import { errorMessages } from './../../config/messages.config';
 
 import {
+  areDatesConsecutive,
   createHttpError,
   decodeBase64String,
   encodeStringBase64,
@@ -97,5 +98,19 @@ describe('decodeBase64String', () => {
         status: 400,
       });
     }
+  });
+});
+
+describe('areDatesConsecutive', () => {
+  it('should return true for consecutive dates', () => {
+    const date1 = new Date('2023-08-25');
+    const date2 = new Date('2023-08-26');
+    expect(areDatesConsecutive(date1, date2)).toBe(true);
+  });
+
+  it('should return false for non-consecutive dates', () => {
+    const date1 = new Date('2023-08-25');
+    const date2 = new Date('2023-08-28');
+    expect(areDatesConsecutive(date1, date2)).toBe(false);
   });
 });
