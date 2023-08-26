@@ -143,6 +143,37 @@ describe('UsersController (e2e)', () => {
     });
   });
 
+  // Should fetch users stats properly
+  it('/users/stats (GET)', async () => {
+    const response = await request(app.getHttpServer()).get(
+      `/users/stats?uid=${USER_UID}`,
+    );
+
+    expect(response.status).toEqual(200);
+
+    expect(response.body).toMatchObject({
+      message: responseMessages.fetched_stats,
+      status: 200,
+    });
+
+    expect(response.body.data).toHaveProperty('exercisesSolved');
+    expect(response.body.data).toHaveProperty('createdAt');
+  });
+
+  // Should fetch users activity properly
+  it('/users/activity (GET)', async () => {
+    const response = await request(app.getHttpServer()).get(
+      `/users/activity?uid=${USER_UID}`,
+    );
+
+    expect(response.status).toEqual(200);
+
+    expect(response.body).toMatchObject({
+      message: responseMessages.fetched_activity,
+      status: 200,
+    });
+  });
+
   // Should throw 409 if any db error occurs while deleting the user
   it('/users (DELETE)', async () => {
     const TEMP_UID = 'non-existant-uid';

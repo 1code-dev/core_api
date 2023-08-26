@@ -200,6 +200,24 @@ describe('UsersService', () => {
     }
   });
 
+  // Calculate user stats 📊
+
+  // should calculate profile stats successfully
+  it('should correctly calculate users streak data', async () => {
+    const usersTotalPoints = await service.calculateUserTotalExercisesSolved(
+      USER_UID,
+    );
+
+    expect(typeof usersTotalPoints).toEqual('number');
+  });
+
+  // should fetch users activity correctly
+  it('should correctly fetch users activity', async () => {
+    const usersActivity = await service.fetchUserActivity(USER_UID);
+
+    expect(typeof usersActivity).toEqual('object');
+  });
+
   // Delete user 🗑️
 
   // Should delete users profile without any db error
