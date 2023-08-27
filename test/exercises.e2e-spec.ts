@@ -9,7 +9,7 @@ import {
   responseMessages,
 } from './../src/config/messages.config';
 
-describe('UsersController (e2e)', () => {
+describe('ExercisesController (e2e)', () => {
   let app: INestApplication;
 
   // User's UID for Test User 1 who is already created in the DB

@@ -3,6 +3,11 @@ import { TracksService } from './tracks.service';
 import { errorMessages } from './../config/messages.config';
 import { supabaseClient } from './../core/db/supabase.db';
 
+import {
+  connectRedisClient,
+  disconnectRedisClient,
+} from './../core/db/redis.db';
+
 describe('TracksService', () => {
   let service: TracksService;
 
@@ -12,12 +17,14 @@ describe('TracksService', () => {
   // Track ID for `C++` track
   const TRACK_ID = '1f39a810-9156-4f30-88cf-743dfe4dc20a';
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [TracksService],
     }).compile();
 
     service = module.get<TracksService>(TracksService);
+
+    connectRedisClient();
   });
 
   afterAll(async () => {
@@ -27,7 +34,11 @@ describe('TracksService', () => {
       .delete()
       .eq('uid', USER_UID)
       .eq('trackId', TRACK_ID);
+
+    disconnectRedisClient();
   });
+
+  // Fetch available tracks 🚄
 
   // Check if `fetchAllAvailableTracks` function returning track list properly
   it('should return a valid list of available tracks', async () => {
@@ -41,10 +52,13 @@ describe('TracksService', () => {
     expect(tracks[0].logo).not.toBeNull();
     expect(tracks[0].name).not.toBeNull();
     expect(tracks[0].tags).not.toBeNull();
+    expect(tracks[0].noOfExercises).not.toBeNull();
 
     // Validate if tags are being fetched properly
     expect(tracks[0].tags.length).toBeGreaterThan(0);
   });
+
+  // Join track for user 🛤️
 
   // Check if user is joining the track properly
   it('should join the track properly', async () => {
@@ -86,5 +100,44 @@ describe('TracksService', () => {
         status: 409,
       });
     }
+  });
+
+  // Fetch users joined tracks 🚃
+
+  // Check if `fetchUsersJoinedTracks` function returning track data properly
+  it('should return a valid list of users joined tracks', async () => {
+    const tracks = await service.fetchUsersJoinedTracks(USER_UID);
+
+    // except length to be greater then 0
+    expect(tracks.length).toBeGreaterThan(0);
+
+    // validate format of the response
+    expect(tracks[0].id).not.toBeNull();
+    expect(tracks[0].logo).not.toBeNull();
+    expect(tracks[0].name).not.toBeNull();
+  });
+
+  // Calculate total exercises 🧮
+
+  // Check if exercises count in a track is fetched properly
+  it('should return a valid count of available exercises in a track', async () => {
+    const exercises = await service.calculateTotalExercisesInTrack(TRACK_ID);
+
+    // except length to be greater then 0
+    expect(exercises).toBeGreaterThan(0);
+  });
+
+  // Calculate users progress
+
+  // Check if exercises count in a track is fetched properly
+  it('should return a valid count of available exercises in a track', async () => {
+    const progress = await service.calculateUsersTrackProgress(
+      USER_UID,
+      TRACK_ID,
+      2, // placeholder value for no. of exercises
+    );
+
+    // except to receive valid progress
+    expect(typeof progress).toEqual('number');
   });
 });
