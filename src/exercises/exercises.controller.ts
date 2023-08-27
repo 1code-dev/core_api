@@ -64,7 +64,7 @@ export class ExercisesController {
   ): Promise<TResponse<TAllExercises[]>> {
     // throws 409 error if any db error occurs
     const exercises: TAllExercises[] =
-      await this.service.getAllExercisesInTrack(query.id);
+      await this.service.fetchAllExercisesInTrack(query.id);
 
     return {
       data: exercises,
@@ -119,7 +119,7 @@ export class ExercisesController {
     // fetched exercise details by exercise id
     // throws 404 error if exercise not found
     // throws 409 error if any db error occurs
-    const details: TExerciseDetails = await this.service.getExerciseDetails(
+    const details: TExerciseDetails = await this.service.fetchExerciseDetails(
       query.id,
     );
 
@@ -180,7 +180,9 @@ export class ExercisesController {
     // fetch details of the exercise in which user has submitted the code
     // throes 404 if exercise does not exists
     // throws 409 if db error occurs
-    const details = await this.service.getExerciseTestDetails(body.exerciseId);
+    const details = await this.service.fetchExerciseTestDetails(
+      body.exerciseId,
+    );
 
     // decoding the base64 string to normal one
     // if input base64 string is not valid 400 (BadRequest) exception is thrown

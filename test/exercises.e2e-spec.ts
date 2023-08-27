@@ -5,6 +5,11 @@ import { INestApplication } from '@nestjs/common';
 import { AppModule } from './../src/app.module';
 
 import {
+  connectRedisClient,
+  disconnectRedisClient,
+} from './../src/core/db/redis.db';
+
+import {
   errorMessages,
   responseMessages,
 } from './../src/config/messages.config';
@@ -21,13 +26,20 @@ describe('ExercisesController (e2e)', () => {
   // Exercise ID of `Hello, World!` exercise in python track
   const EXERCISE_ID = '85b3f3ec-e5e8-4bd7-b035-0ab1990cd75c';
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();
 
     app = moduleFixture.createNestApplication();
+
+    connectRedisClient();
+
     await app.init();
+  });
+
+  afterAll(() => {
+    disconnectRedisClient();
   });
 
   // Should fetch all the available tracks properly

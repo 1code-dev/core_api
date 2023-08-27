@@ -5,6 +5,7 @@ import { supabaseClient } from './../core/db/supabase.db';
 import { createHttpError, isEmptyArray } from './../core/utils/utils.core';
 import { TAllExercises } from './types/track_exercises.type.exercises';
 import { TExerciseDetails } from './../types/exercise.type';
+import { redisClient } from './../core/db/redis.db';
 
 @Injectable()
 export class ExercisesService {
@@ -20,12 +21,25 @@ export class ExercisesService {
   /**
    * Get all exercises in a track
    *
+   * @cache for 1 Day `(86400 secs)`
+   *
    * @param {String} trackId of track to fetch exercises of
    * @returns {Array<TAllExercises>} all available exercises in a track
    *
    * @throws 422 error if db error occurs
    */
-  async getAllExercisesInTrack(trackId: string): Promise<TAllExercises[]> {
+  async fetchAllExercisesInTrack(trackId: string): Promise<TAllExercises[]> {
+    const REDIS_KEY = 'allExercisesInTrack' + '_' + trackId;
+
+    // Read the cached data
+    const cachedData = await redisClient.get(REDIS_KEY);
+
+    // If cache is available and in valid format, return it
+    if (cachedData && JSON.parse(cachedData)) {
+      return JSON.parse(cachedData);
+    }
+
+    // Fetch exercises in a track
     const { data, error } = await supabaseClient
       .from('Exercises')
       .select(`id, name, level, maxPoints`)
@@ -48,11 +62,18 @@ export class ExercisesService {
 
     this.logger.log(`Fetched all the available (${data.length}) exercises`);
 
+    // cache the response for 1 Day
+
+    await redisClient.set(REDIS_KEY, JSON.stringify(data));
+    await redisClient.expire(REDIS_KEY, 86400); // cache will expire after 1 Day
+
     return data as TAllExercises[];
   }
 
   /**
    * Fetch exercise details by exercise id
+   *
+   * @cache for 1 Day `(86400 secs)`
    *
    * @param {string} exerciseId of exercise to fetch details for
    * @returns {TExerciseDetails} exercise details of provided exercise w/ provided id
@@ -60,7 +81,17 @@ export class ExercisesService {
    * @throws 422 error if db error occurs
    * @throws 404 error if there is no exercise w/ provided exercise id
    */
-  async getExerciseDetails(exerciseId: string): Promise<TExerciseDetails> {
+  async fetchExerciseDetails(exerciseId: string): Promise<TExerciseDetails> {
+    const REDIS_KEY = 'exerciseDetails' + '_' + exerciseId;
+
+    // Read the cached data
+    const cachedData = await redisClient.get(REDIS_KEY);
+
+    // If cache is available and in valid format, return it
+    if (cachedData && JSON.parse(cachedData)) {
+      return JSON.parse(cachedData);
+    }
+
     const { data, error } = await supabaseClient
       .from('Exercises')
       .select(`id, name, maxPoints, minPoints, instructions, baseCode`)
@@ -94,18 +125,35 @@ export class ExercisesService {
 
     this.logger.log(`Fetched details of exercise w/ id ${exerciseId}`);
 
+    // Cache the response for 1 Day
+
+    await redisClient.set(REDIS_KEY, JSON.stringify(data[0]));
+    await redisClient.expire(REDIS_KEY, 86400); // cache will expire after 1 Day
+
     return data[0] as TExerciseDetails;
   }
 
   /**
    * Fetch exercise test details by exercise id
    *
+   * @cache for 1 Day `(86400 secs)`
+   *
    * @param {string} exerciseId of exercise to fetch details for
    *
    * @throws 409 error if db error occurs
    * @throws 404 error if there is no exercise w/ provided exercise id
    */
-  async getExerciseTestDetails(exerciseId: string) {
+  async fetchExerciseTestDetails(exerciseId: string) {
+    const REDIS_KEY = 'exercisesTestDetails' + '_' + exerciseId;
+
+    // Read the cached data
+    const cachedData = await redisClient.get(REDIS_KEY);
+
+    // If cache is available and in valid format, return it
+    if (cachedData && JSON.parse(cachedData)) {
+      return JSON.parse(cachedData);
+    }
+
     const { data, error } = await supabaseClient
       .from('Exercises')
       .select(`maxPoints, minPoints, tests, language, trackId`)
@@ -138,6 +186,11 @@ export class ExercisesService {
         stacktrace: error?.details,
       });
     }
+
+    // Cache the response for 1 Day
+
+    await redisClient.set(REDIS_KEY, JSON.stringify(data[0]));
+    await redisClient.expire(REDIS_KEY, 86400); // cache will expire after 1 Day
 
     return data[0];
   }
@@ -280,6 +333,8 @@ export class ExercisesService {
   /**
    * Create a exercise record in db for the user
    *
+   * ⚠️ ALERT: Users total points cache is invalidated
+   *
    * @param exerciseId
    * @param userId
    * @param trackId
@@ -323,11 +378,16 @@ export class ExercisesService {
       });
     }
 
+    // Invalidate total points cache
+    await redisClient.del('totalPoints' + '_' + userId);
+
     return true; // indicates a record has been created
   }
 
   /**
    * Updates exercise record in db for the user
+   *
+   * ⚠️ ALERT: Users total points cache is invalidated
    *
    * @param exerciseId
    * @param userId
@@ -369,6 +429,9 @@ export class ExercisesService {
         stacktrace: error?.details,
       });
     }
+
+    // Invalidate total points cache
+    await redisClient.del('totalPoints' + '_' + userId);
 
     return true; // indicates a record has been updated
   }
