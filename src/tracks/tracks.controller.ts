@@ -1,11 +1,11 @@
 import { TracksService } from './tracks.service';
 import { TAvailableTrack } from './../types/track';
 import { TResponse } from './../types/response.type';
-import { errorMessages, responseMessages } from './../config/messages.config';
-import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { ApiUniversalErrorResponses } from './../config/errors.config';
 import { TJoinTrackInput } from './types/join_track.type.tracks';
 import { TUserTrackFetchingInput } from './types/user_track_input';
+import { ApiUniversalErrorResponses } from './../config/errors.config';
+import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { errorMessages, responseMessages } from './../config/messages.config';
 import { Body, Controller, Get, HttpStatus, Post, Query } from '@nestjs/common';
 
 @Controller('tracks')
@@ -31,6 +31,7 @@ export class TracksController {
             name: 'Python',
             tags: ['Imperative', 'Object Oriented ', 'Functional'],
             logo: 'https://zjngbjykvofvztzjjhye.supabase.co/storage/v1/object/public/assets/track_logo/python_track_logo.svg',
+            noOfExercises: 5,
           },
         ],
         message: responseMessages.fetched_track,
@@ -42,8 +43,25 @@ export class TracksController {
   @ApiUniversalErrorResponses()
   async getAllTracks(): Promise<TResponse<Array<TAvailableTrack>>> {
     // throws 409 if any db error occurs
-    const tracks: TAvailableTrack[] =
-      await this.service.fetchAllAvailableTracks();
+    const availableTracks = await this.service.fetchAllAvailableTracks();
+
+    const tracks: TAvailableTrack[] = [];
+
+    for (let i = 0; i < availableTracks.length; i++) {
+      // calculate total exercises
+      // throws 409 if any db error occurs
+      const totalExercises = await this.service.calculateTotalExercisesInTrack(
+        availableTracks[i].id,
+      );
+
+      tracks.push({
+        id: availableTracks[i].id,
+        name: availableTracks[i].name,
+        tags: availableTracks[i].tags,
+        logo: availableTracks[i].logo,
+        noOfExercises: totalExercises,
+      });
+    }
 
     return {
       data: tracks,
@@ -91,7 +109,10 @@ export class TracksController {
     // join track for user with uid and track id
     // throws 409 error if any db error occurs
     // throws 422 if user has already joined the track
-    const isJoined = await this.service.joinTrack(body.uid, body.trackId);
+    const isJoined = await this.service.joinTrackForUser(
+      body.uid,
+      body.trackId,
+    );
 
     return {
       data: isJoined, // indicates user has joined the track
@@ -128,21 +149,30 @@ export class TracksController {
   // 500, 400, 401, 409
   @ApiUniversalErrorResponses()
   async getJoinedTracks(@Query() query: TUserTrackFetchingInput) {
-    const userTracks = await this.service.getUserTracks(query.uuid);
+    const userTracks = await this.service.fetchUsersJoinedTracks(query.uuid);
 
     const data = [];
 
     for (let i = 0; i < userTracks.length; i++) {
-      const progress = await this.service.getTrackProgress(
+      // calculate total exercises
+      // throws 409 if any db error occurs
+      const totalExercises = await this.service.calculateTotalExercisesInTrack(
         userTracks[i].trackId,
       );
+
+      // calculate users completed progress
+      // throws 409 if any db error has occurred
+      const progress = await this.service.calculateUsersTrackProgress(
+        query.uuid,
+        userTracks[i].trackId,
+        totalExercises,
+      );
+
       data.push({ ...userTracks[i].Tracks, progress });
     }
 
     return {
-      data: {
-        data,
-      },
+      data,
       message: '',
       status: 200,
     };

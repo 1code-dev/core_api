@@ -48,7 +48,7 @@ describe('TracksService', () => {
 
   // Check if user is joining the track properly
   it('should join the track properly', async () => {
-    const isJoined = await service.joinTrack(USER_UID, TRACK_ID);
+    const isJoined = await service.joinTrackForUser(USER_UID, TRACK_ID);
 
     expect(isJoined).toEqual(true);
   });
@@ -56,7 +56,7 @@ describe('TracksService', () => {
   // Should throw error if user has already joined the track
   it('should throw 422 error if user has already joined thr track', async () => {
     try {
-      await service.joinTrack(USER_UID, TRACK_ID);
+      await service.joinTrackForUser(USER_UID, TRACK_ID);
 
       // if error is not thrown then test should automatically fail
       expect(true).toBe(false);
@@ -74,7 +74,7 @@ describe('TracksService', () => {
   it('should throw 409 db error on invalid input', async () => {
     try {
       // wrong formatted UUID inputs are passed
-      await service.joinTrack('USER_UID', 'TRACK_ID');
+      await service.joinTrackForUser('USER_UID', 'TRACK_ID');
 
       // if error is not thrown then test should automatically fail
       expect(true).toBe(false);

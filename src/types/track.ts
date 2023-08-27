@@ -13,4 +13,6 @@ export interface TAvailableTrack {
 
   // logo of the track
   logo: string;
+
+  noOfExercises: number;
 }
