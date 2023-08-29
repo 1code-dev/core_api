@@ -1,5 +1,4 @@
 import * as request from 'supertest';
-
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import { AppModule } from './../src/app.module';
@@ -17,8 +16,8 @@ import {
 describe('ExercisesController (e2e)', () => {
   let app: INestApplication;
 
-  // User's UID for Test User 1 who is already created in the DB
-  const USER_UID = 'a1212c12-1a82-4f14-8dd0-4cbe04c47d4b';
+  // User's UID for Test User 2 who is already created in the DB for exercises test
+  const USER_UID = 'c3f285fa-fb0c-413d-8d99-eb93d5b543ad';
 
   // Track ID for `C++` track
   const TRACK_ID = '1f39a810-9156-4f30-88cf-743dfe4dc20a';

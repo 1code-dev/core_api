@@ -17,8 +17,8 @@ describe('ExercisesService', () => {
   // Exercise ID of `Hello, World!` exercise in python track
   const EXERCISE_ID = '85b3f3ec-e5e8-4bd7-b035-0ab1990cd75c';
 
-  // User's UID for Test User 1 who is already created in the DB
-  const USER_UID = 'a1212c12-1a82-4f14-8dd0-4cbe04c47d4b';
+  // User's UID for Test User 2 who is already created in the DB
+  const USER_UID = 'c3f285fa-fb0c-413d-8d99-eb93d5b543ad';
 
   beforeAll(async () => {
     const module: TestingModule = await Test.createTestingModule({
