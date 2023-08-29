@@ -4,31 +4,40 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import { AppModule } from './../src/app.module';
 import { supabaseClient } from './../src/core/db/supabase.db';
+import {
+  connectRedisClient,
+  disconnectRedisClient,
+} from './../src/core/db/redis.db';
 
 import {
   errorMessages,
   responseMessages,
 } from './../src/config/messages.config';
 
-describe('UsersController (e2e)', () => {
+describe('TracksController (e2e)', () => {
   let app: INestApplication;
 
   /// User's UID for Test User 2 who is already created in the DB
-  const USER_UID = 'a2212c12-1a82-4f14-8dd0-4cbe04c47d4b';
+  const USER_UID = '2945ffff-6ef1-4539-bedf-fd27c8f1df2c';
 
   // Track ID for `C++` track
   const TRACK_ID = '1f39a810-9156-4f30-88cf-743dfe4dc20a';
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();
 
     app = moduleFixture.createNestApplication();
+
+    connectRedisClient();
+
     await app.init();
   });
 
   afterAll(async () => {
+    disconnectRedisClient();
+
     // delete created records by the tests to avoid future ambiguity
     await supabaseClient
       .from('UserTracks')
@@ -59,6 +68,7 @@ describe('UsersController (e2e)', () => {
     expect(response.body.data[0]).toHaveProperty('logo');
     expect(response.body.data[0]).toHaveProperty('name');
     expect(response.body.data[0]).toHaveProperty('tags');
+    expect(response.body.data[0]).toHaveProperty('noOfExercises');
   });
 
   // Should join track for user properly
@@ -95,5 +105,30 @@ describe('UsersController (e2e)', () => {
       message: errorMessages.track_already_joined,
       status: 422,
     });
+  });
+
+  // Should fetch users joined track data w/ progress
+  it('/tracks/joined (GET)', async () => {
+    const response = await request(app.getHttpServer()).get(
+      `/tracks/joined?uuid=${USER_UID}`,
+    );
+
+    // validate response status
+    expect(response.status).toEqual(200);
+
+    // validate response format
+    expect(response.body).toMatchObject({
+      status: 200,
+    });
+
+    // validate data response
+    expect(response.body).toHaveProperty('data');
+
+    // validate response format
+    if (response.body.data) {
+      expect(response.body.data[0]).toHaveProperty('progress');
+      expect(response.body.data[0]).toHaveProperty('logo');
+      expect(response.body.data[0]).toHaveProperty('name');
+    }
   });
 });

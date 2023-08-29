@@ -3,6 +3,11 @@ import { ExercisesService } from './exercises.service';
 import { errorMessages } from './../config/messages.config';
 import { supabaseClient } from './../core/db/supabase.db';
 
+import {
+  connectRedisClient,
+  disconnectRedisClient,
+} from './../core/db/redis.db';
+
 describe('ExercisesService', () => {
   let service: ExercisesService;
 
@@ -12,8 +17,8 @@ describe('ExercisesService', () => {
   // Exercise ID of `Hello, World!` exercise in python track
   const EXERCISE_ID = '85b3f3ec-e5e8-4bd7-b035-0ab1990cd75c';
 
-  // User's UID for Test User 1 who is already created in the DB
-  const USER_UID = 'a1212c12-1a82-4f14-8dd0-4cbe04c47d4b';
+  // User's UID for Test User 2 who is already created in the DB
+  const USER_UID = 'c3f285fa-fb0c-413d-8d99-eb93d5b543ad';
 
   beforeAll(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -21,9 +26,13 @@ describe('ExercisesService', () => {
     }).compile();
 
     service = module.get<ExercisesService>(ExercisesService);
+
+    connectRedisClient();
   });
 
   afterAll(async () => {
+    disconnectRedisClient();
+
     await supabaseClient
       .from('UserExercises')
       .delete()
@@ -35,7 +44,7 @@ describe('ExercisesService', () => {
 
   // Check if `getAllExercisesInTrack` function returning exercises list properly for a given track
   it('should return a valid list of available exercises in a track', async () => {
-    const exercises = await service.getAllExercisesInTrack(TRACK_ID);
+    const exercises = await service.fetchAllExercisesInTrack(TRACK_ID);
 
     // except length to be greater then 0
     expect(exercises.length).toBeGreaterThan(0);
@@ -51,7 +60,7 @@ describe('ExercisesService', () => {
   it('Should throw 409 exception while fetching exercises if track id is invalid', async () => {
     try {
       // Track ID is passed in invalid format to produce error
-      await service.getAllExercisesInTrack('TRACK_ID');
+      await service.fetchAllExercisesInTrack('TRACK_ID');
 
       // if error is not thrown then test should automatically fail
       expect(true).toBe(false);
@@ -69,7 +78,7 @@ describe('ExercisesService', () => {
 
   // Should return exercise details properly
   it('should return exercise details properly', async () => {
-    const exercise = await service.getExerciseDetails(EXERCISE_ID);
+    const exercise = await service.fetchExerciseDetails(EXERCISE_ID);
 
     // validate format of the response
     expect(exercise.id).not.toBeNull();
@@ -84,7 +93,9 @@ describe('ExercisesService', () => {
   it('Should throw 404 error if exercise does not exists', async () => {
     try {
       // valid but non existant UUID
-      await service.getExerciseDetails('ed04142c-09c5-43d0-848c-2dc16b8b96c3');
+      await service.fetchExerciseDetails(
+        'ed04142c-09c5-43d0-848c-2dc16b8b96c3',
+      );
 
       // if error is not thrown then test should automatically fail
       expect(true).toBe(false);
@@ -102,7 +113,7 @@ describe('ExercisesService', () => {
 
   // Should return exercise test details properly
   it('should return exercise test details properly', async () => {
-    const exercise = await service.getExerciseTestDetails(EXERCISE_ID);
+    const exercise = await service.fetchExerciseTestDetails(EXERCISE_ID);
 
     // validate format of the response
     expect(exercise.tests).not.toBeNull();
@@ -115,7 +126,9 @@ describe('ExercisesService', () => {
   it('Should throw 404 error if exercise test details were not found', async () => {
     try {
       // valid but non existant UUID
-      await service.getExerciseDetails('ed04142c-09c5-43d0-848c-2dc16b8b96c3');
+      await service.fetchExerciseDetails(
+        'ed04142c-09c5-43d0-848c-2dc16b8b96c3',
+      );
 
       // if error is not thrown then test should automatically fail
       expect(true).toBe(false);
