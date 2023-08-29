@@ -12,7 +12,7 @@ describe('TracksService', () => {
   let service: TracksService;
 
   // User's UID for Test User 1 who is already created in the DB
-  const USER_UID = 'a1212c12-1a82-4f14-8dd0-4cbe04c47d4b';
+  const USER_UID = '2945ffff-6ef1-4539-bedf-fd27c8f1df2c';
 
   // Track ID for `C++` track
   const TRACK_ID = '1f39a810-9156-4f30-88cf-743dfe4dc20a';
