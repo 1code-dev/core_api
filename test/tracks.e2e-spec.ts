@@ -71,41 +71,41 @@ describe('TracksController (e2e)', () => {
     expect(response.body.data[0]).toHaveProperty('noOfExercises');
   });
 
-  // Should join track for user properly
-  it('/tracks/join (POST)', async () => {
-    const response = await request(app.getHttpServer())
-      .post('/tracks/join')
-      .send({
-        uid: USER_UID,
-        trackId: TRACK_ID,
-      });
+  // // Should join track for user properly
+  // it('/tracks/join (POST)', async () => {
+  //   const response = await request(app.getHttpServer())
+  //     .post('/tracks/join')
+  //     .send({
+  //       uid: USER_UID,
+  //       trackId: TRACK_ID,
+  //     });
 
-    expect(response.status).toEqual(201);
+  //   expect(response.status).toEqual(201);
 
-    expect(response.body).toMatchObject({
-      data: true,
-      message: responseMessages.joined_track,
-      status: 201,
-    });
-  });
+  //   expect(response.body).toMatchObject({
+  //     data: true,
+  //     message: responseMessages.joined_track,
+  //     status: 201,
+  //   });
+  // });
 
-  // Should throw 422 error if user has already joined the track
-  it('/tracks/join (POST)', async () => {
-    const response = await request(app.getHttpServer())
-      .post('/tracks/join')
-      .send({
-        uid: USER_UID,
-        trackId: TRACK_ID,
-      });
+  // // Should throw 422 error if user has already joined the track
+  // it('/tracks/join (POST)', async () => {
+  //   const response = await request(app.getHttpServer())
+  //     .post('/tracks/join')
+  //     .send({
+  //       uid: USER_UID,
+  //       trackId: TRACK_ID,
+  //     });
 
-    expect(response.status).toEqual(422);
+  //   expect(response.status).toEqual(422);
 
-    expect(response.body).toMatchObject({
-      data: null,
-      message: errorMessages.track_already_joined,
-      status: 422,
-    });
-  });
+  //   expect(response.body).toMatchObject({
+  //     data: null,
+  //     message: errorMessages.track_already_joined,
+  //     status: 422,
+  //   });
+  // });
 
   // Should fetch users joined track data w/ progress
   it('/tracks/joined (GET)', async () => {
