@@ -9,16 +9,17 @@ import {
   disconnectRedisClient,
 } from './../src/core/db/redis.db';
 
-import {
-  errorMessages,
-  responseMessages,
-} from './../src/config/messages.config';
+import { responseMessages } from './../src/config/messages.config';
 
 describe('TracksController (e2e)', () => {
   let app: INestApplication;
 
-  /// User's UID for Test User 2 who is already created in the DB
-  const USER_UID = '2945ffff-6ef1-4539-bedf-fd27c8f1df2c';
+  /**
+   * ( 1auth_user2 ) Already created w/ 1auth
+   *
+   * ⚠️ Should be same as UID in 1auth DB
+   */
+  const USER_UID = '1188f845-def3-4d7f-af98-b2248ca6750f';
 
   // Track ID for `C++` track
   const TRACK_ID = '1f39a810-9156-4f30-88cf-743dfe4dc20a';
