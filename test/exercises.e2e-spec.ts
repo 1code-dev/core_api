@@ -16,8 +16,12 @@ import {
 describe('ExercisesController (e2e)', () => {
   let app: INestApplication;
 
-  // User's UID for Test User 2 who is already created in the DB for exercises test
-  const USER_UID = 'c3f285fa-fb0c-413d-8d99-eb93d5b543ad';
+  /**
+   * ( 1auth_user3 ) Already created w/ 1auth
+   *
+   * ⚠️ Should be same as UID in 1auth DB
+   */
+  const USER_UID = 'dc7ce6df-dd81-46d5-8a32-bb373a90641e';
 
   // Track ID for `C++` track
   const TRACK_ID = '1f39a810-9156-4f30-88cf-743dfe4dc20a';
