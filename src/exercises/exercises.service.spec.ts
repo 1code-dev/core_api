@@ -11,14 +11,18 @@ import {
 describe('ExercisesService', () => {
   let service: ExercisesService;
 
+  /**
+   * ( 1auth_user3 ) Already created w/ 1auth
+   *
+   * ⚠️ Should be same as UID in 1auth DB
+   */
+  const USER_UID = 'dc7ce6df-dd81-46d5-8a32-bb373a90641e';
+
   // Track ID for `Python` track
   const TRACK_ID = 'a13e9c3d-e7cf-477f-b862-0a1ee0e18d10';
 
   // Exercise ID of `Hello, World!` exercise in python track
   const EXERCISE_ID = '85b3f3ec-e5e8-4bd7-b035-0ab1990cd75c';
-
-  // User's UID for Test User 2 who is already created in the DB
-  const USER_UID = 'c3f285fa-fb0c-413d-8d99-eb93d5b543ad';
 
   beforeAll(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -292,10 +296,11 @@ describe('ExercisesService', () => {
 
   // should return correct API route for the language input
   it('should return correct API route for the language input', () => {
-    expect(service.getCompilerUrlByLanguage('Python')).toEqual('compile_py');
-    expect(service.getCompilerUrlByLanguage('C++')).toEqual('compile_cpp');
+    expect(service.getCompilerUrlByLanguage('Python')).toEqual('py');
+    expect(service.getCompilerUrlByLanguage('C++')).toEqual('cpp');
+    expect(service.getCompilerUrlByLanguage('C')).toEqual('c');
 
-    // if not exists
-    expect(service.getCompilerUrlByLanguage('C')).toEqual('');
+    // if route does not exists
+    expect(service.getCompilerUrlByLanguage('LOL')).toEqual('');
   });
 });
