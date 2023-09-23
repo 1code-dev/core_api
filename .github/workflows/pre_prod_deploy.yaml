@@ -6,7 +6,7 @@ on:
       - pre_prod
 
 env:
-  PROJECT_ID: one-code-1u
+  PROJECT_ID: one-code-1univer
   SERVICE: pre-prod-core-api
   REGION: asia-south1
 
