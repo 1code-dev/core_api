@@ -10,7 +10,12 @@ import {
 describe('UsersService', () => {
   let service: UsersService;
 
-  const USER_UID = '1d1f0c06-4d4d-4e9e-a6f7-ef6e0e7a9b11';
+  /**
+   * ( 1auth_user1 ) Already created w/ 1auth
+   *
+   * ⚠️ Should be same as UID in 1auth DB
+   */
+  const USER_UID = 'bbc7ec49-777e-4d3c-8741-bf422e16c20b';
 
   beforeAll(async () => {
     const module: TestingModule = await Test.createTestingModule({
