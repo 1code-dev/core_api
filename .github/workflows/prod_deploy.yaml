@@ -6,7 +6,7 @@ on:
       - main
 
 env:
-  PROJECT_ID: one-code-1u
+  PROJECT_ID: one-code-1univer
   SERVICE: core-api
   REGION: asia-south1
 
