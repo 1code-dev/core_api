@@ -12,7 +12,7 @@ export class ExercisesService {
   private readonly logger: Logger;
 
   private readonly COMPILER_URL: string =
-    'https://core-compiler-rlqlgeshoq-el.a.run.app/';
+    'https://core-compilers-ekih6uelkq-el.a.run.app/';
 
   constructor() {
     this.logger = new Logger(ExercisesService.name);
@@ -219,7 +219,7 @@ export class ExercisesService {
     // do API post request for code compilation
     try {
       const res = await axios.post(
-        `${this.COMPILER_URL}/${compilerUrl}`,
+        `${this.COMPILER_URL}/compile/${compilerUrl}`,
         {
           usersCode: codeWithTests,
         },
@@ -489,10 +489,13 @@ export class ExercisesService {
   getCompilerUrlByLanguage(language: string): string {
     switch (language) {
       case 'Python':
-        return 'compile_py';
+        return 'py';
 
       case 'C++':
-        return 'compile_cpp';
+        return 'cpp';
+
+      case 'C':
+        return 'c';
 
       default:
         return '';
